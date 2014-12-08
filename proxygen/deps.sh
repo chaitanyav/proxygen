@@ -11,62 +11,97 @@ trap "cd $start_dir" EXIT
 # Must execute from the directory containing this script
 cd "$(dirname "$0")"
 
-# Some extra dependencies for Ubuntu 13.10 and 14.04
-sudo apt-get install -yq \
-    flex \
-    bison \
-    libkrb5-dev \
-    libsasl2-dev \
-    libnuma-dev \
-    pkg-config \
-    libssl-dev \
-    libcap-dev \
-    ruby \
-    gperf \
-    autoconf-archive \
-    libevent-dev \
-    wget
+case "`uname -s`" in
 
-# Adding support for Ubuntu 12.04.x
-# Needs libdouble-conversion-dev, google-gflags and double-conversion
-# deps.sh in fbthrift and folly builds anyways (no trap there)
-if ! sudo apt-get install libgoogle-glog-dev; 
-then
-	if [ ! -e google-glog ]; then
-    echo "fetching glog from svn (apt-get failed)"
-		svn checkout https://google-glog.googlecode.com/svn/trunk/ google-glog
-		cd google-glog
-		./configure
-		make
-		sudo make install
-		cd ..
-	fi
-fi
+  'FreeBSD')
+    sudo pkg install flex \
+      bison \
+      cyrus-sasl \
+      cmake \
+      automake \
+      autoconf \
+      pkgconf \
+      openssl \
+      ruby \
+      gperf \
+      glog \
+      gflags \
+      autoconf-archive \
+      boost-all \
+      libtool \
+      libevent2 \
+      libexecinfo \
+      libcapn \
+      lz4 \
+      lzma \
+      lzlib \
+      libdouble-conversion \
+      wget \
+      snappy \
+      ipmitool \
+      libidn
+      export LDFLAGS=-L/usr/local/lib
+      export CPPFLAGS=-I/usr/local/include
+    ;;
+  *)
+    # Some extra dependencies for Ubuntu 13.10 and 14.04
+    sudo apt-get install -yq \
+        flex \
+        bison \
+        libkrb5-dev \
+        libsasl2-dev \
+        libnuma-dev \
+        pkg-config \
+        libssl-dev \
+        libcap-dev \
+        ruby \
+        gperf \
+        autoconf-archive \
+        libevent-dev \
+        wget
 
-if ! sudo apt-get install libgflags-dev;
-then
-	if [ ! -e google-gflags ]; then
-    echo "Fetching gflags from svn (apt-get failed)"
-    svn checkout https://google-gflags.googlecode.com/svn/trunk/ google-gflags
-    cd google-gflags
-    ./configure
-    make
-    sudo make install
-    cd ..
-	fi
-fi
+    # Adding support for Ubuntu 12.04.x
+    # Needs libdouble-conversion-dev, google-gflags and double-conversion
+    # deps.sh in fbthrift and folly builds anyways (no trap there)
+    if ! sudo apt-get install libgoogle-glog-dev;
+    then
+            if [ ! -e google-glog ]; then
+        echo "fetching glog from svn (apt-get failed)"
+                    svn checkout https://google-glog.googlecode.com/svn/trunk/ google-glog
+                    cd google-glog
+                    ./configure
+                    make
+                    sudo make install
+                    cd ..
+            fi
+    fi
 
-if  ! sudo apt-get install libdouble-conversion-dev;
-then
-	if [ ! -e double-conversion ]; then
-    echo "Fetching double-conversion from git (apt-get failed)"
-		git clone https://github.com/floitsch/double-conversion.git double-conversion
-		cd double-conversion
-		cmake . -DBUILD_SHARED_LIBS=ON
-		sudo make install
-		cd ..
-	fi
-fi
+    if ! sudo apt-get install libgflags-dev;
+    then
+            if [ ! -e google-gflags ]; then
+        echo "Fetching gflags from svn (apt-get failed)"
+        svn checkout https://google-gflags.googlecode.com/svn/trunk/ google-gflags
+        cd google-gflags
+        ./configure
+        make
+        sudo make install
+        cd ..
+            fi
+    fi
+
+    if  ! sudo apt-get install libdouble-conversion-dev;
+    then
+            if [ ! -e double-conversion ]; then
+        echo "Fetching double-conversion from git (apt-get failed)"
+                    git clone https://github.com/floitsch/double-conversion.git double-conversion
+                    cd double-conversion
+                    cmake . -DBUILD_SHARED_LIBS=ON
+                    sudo make install
+                    cd ..
+            fi
+    fi
+
+  esac
 
 
 git clone https://github.com/facebook/fbthrift || true
